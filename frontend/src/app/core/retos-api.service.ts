@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, EMPTY, map, expand, reduce } from 'rxjs';
 
 import { urlApi } from './api.config';
 import { Avance, NuevoAvance, NuevoReto, Pagina, Reto, TareaSemanal } from './modelos';
@@ -11,9 +11,20 @@ export class RetosApi {
   private readonly http = inject(HttpClient);
   private readonly base = urlApi();
 
-  listarRetos(): Observable<Reto[]> {
-    return this.http.get<Pagina<Reto>>(`${this.base}/retos/`).pipe(map((p) => p.results));
-  }
+
+listarRetos(): Observable<Reto[]> {
+  return this.http.get<Pagina<Reto>>(`${this.base}/retos/`).pipe(
+    expand((pagina) =>
+      pagina.next
+        ? this.http.get<Pagina<Reto>>(pagina.next)
+        : EMPTY,
+    ),
+    reduce(
+      (retos, pagina) => [...retos, ...pagina.results],
+      [] as Reto[],
+    ),
+  );
+}
 
   obtenerReto(id: number): Observable<Reto> {
     return this.http.get<Reto>(`${this.base}/retos/${id}/`);

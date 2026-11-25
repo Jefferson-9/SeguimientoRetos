@@ -1,3 +1,4 @@
+
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -17,6 +18,10 @@ export const routes: Routes = [
   {
     path: 'alertas',
     loadComponent: () => import('./paginas/alertas.page').then((m) => m.AlertasPage),
+  },
+  {
+    path: 'estadisticas',
+    loadComponent: () => import('./paginas/estadisticas.page').then((m) => m.EstadisticasPage),
   },
   { path: '**', redirectTo: 'retos' },
 ];
